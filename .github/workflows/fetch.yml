@@ -1,14 +1,22 @@
-name: Find libspyrus
+name: Download Spyrus Binaries
 
 on:
   workflow_dispatch:
 
 jobs:
-  find_lib:
+  download:
     runs-on: ubuntu-latest
     steps:
-      - name: List and Find Spyrus
+      - name: Fetch Target Binaries
         run: |
-          rsync -r --list-only rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/ > rsync_tree.txt
-          echo "=== SEARCHING FOR LIBSPYRUS ==="
-          grep -i "spyrus" rsync_tree.txt
+          mkdir -p spyrus_artifacts
+          rsync -avz rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/lib64/libspyrus.so.3.0 spyrus_artifacts/
+          rsync -avz rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/sbin/spyrus_test spyrus_artifacts/
+          rsync -avz rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/sbin/cd11-spyrus-tool.sh spyrus_artifacts/
+          rsync -avz rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/srv/http/cgi-bin.auth/spyrus.cgi spyrus_artifacts/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spyrus-core-binaries
+          path: spyrus_artifacts/
