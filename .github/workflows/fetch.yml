@@ -1,20 +1,14 @@
-name: Fetch SPYRUS Directory Tree
+name: Find libspyrus
 
 on:
   workflow_dispatch:
 
 jobs:
-  recon:
+  find_lib:
     runs-on: ubuntu-latest
     steps:
-      - name: Recursively List Rsync Directory
+      - name: List and Find Spyrus
         run: |
-          echo "Scanning platinum-stable/CMG-NAM64 tree..."
-          # -r ile recursive (alt klasörlerle) listeleme yapıyoruz
           rsync -r --list-only rsync://46.43.14.141/platinum-stable/CMG-NAM64/ > rsync_tree.txt
-      
-      - name: Upload Directory Tree
-        uses: actions/upload-artifact@v4
-        with:
-          name: guralp-rsync-tree
-          path: rsync_tree.txt
+          echo "=== SEARCHING FOR LIBSPYRUS ==="
+          grep -i "spyrus" rsync_tree.txt
