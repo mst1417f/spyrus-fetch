@@ -1,26 +1,20 @@
-name: Fetch SPYRUS Binaries
+name: Fetch SPYRUS Directory Tree
 
 on:
-  workflow_dispatch: # Bu sayede butona basarak manuel çalıştırabiliriz
+  workflow_dispatch:
 
 jobs:
-  fetch_binaries:
+  recon:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch CMG-NAM64 (x86-64) Binaries
+      - name: Recursively List Rsync Directory
         run: |
-          mkdir -p spyrus_output
-          
-          echo "Fetching spyrus_util (x86-64)..."
-          rsync -avz --progress rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/sbin/spyrus_util spyrus_output/
-          
-          echo "Fetching libspyrus.so.3.1 (x86-64)..."
-          # Kütüphanenin tam yolunu garantiye almak için her iki klasörü de deniyoruz
-          rsync -avz --progress rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/lib64/libspyrus.so.3.1 spyrus_output/ || true
-          rsync -avz --progress rsync://rsync.guralp.com/platinum-stable/CMG-NAM64/usr/lib/libspyrus.so.3.1 spyrus_output/ || true
-          
-      - name: Upload Binaries as HTTPS ZIP
+          echo "Scanning platinum-stable/CMG-NAM64 tree..."
+          # -r ile recursive (alt klasörlerle) listeleme yapıyoruz
+          rsync -r --list-only rsync://46.43.14.141/platinum-stable/CMG-NAM64/ > rsync_tree.txt
+      
+      - name: Upload Directory Tree
         uses: actions/upload-artifact@v4
         with:
-          name: spyrus-binaries-x86_64
-          path: spyrus_output/
+          name: guralp-rsync-tree
+          path: rsync_tree.txt
